@@ -12,6 +12,7 @@ ObstarWeb.js is the web server, its handling the http request, the html/css/js f
 Alex.js is the actual game.
 ###
 it's possible to put the web server, the game server and the mysql server on different machines.
+The files /lib/AlexMysql.js, /lib/webMysql.js, are both the config for to the mysql databse connection, and the file /public/share/ws_link.js is the link to the game server. (they are all set to localhost);
 ## Mysql Database
 To work, obstar needs a mysql database with the following tables:
 ###

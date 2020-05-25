@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type = 'text/javascript'>
+      function start(pass){
+        let form = document.createElement('FORM');
+        form.method = 'post';
+        form.action = '/start';
+        let key = document.createElement('INPUT');
+        key.type = 'hidden';
+        key.value = pass;
+        key.name = 'pass'
+        form.appendChild(key);
+        document.body.appendChild(form);
+        //console.log(form);
+        form.submit();
+      }
+    </script>
+  </head>
+  <body>
+    <form action="/start" method="post">
+      <input type="text" name="pass" value="">
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>

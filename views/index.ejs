@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' type='text/css' href="./fontStyle.css">
+    <link rel="stylesheet" type="text/css" href="./style.css">
+    <link rel="stylesheet" type="text/css" href="./LeaderBoard.css">
+    <script src=''></script>
+    <script type='text/javascript'>var POST = <%- data %>;</script>
+    <script type='text/javascript' src='./SHARE/PetsConfig.js'></script>
+  </head>
+  <body>
+    <!-- Background -->
+    <canvas id='font'></canvas>
+    <!-- CENTER ELEMENTS -->
+    <div id='centered-main-box'>
+      <div class='left-zone'>
+        <div id='gamemode-box' class='white-box'>
+          <span>Game mode</span>
+          <div class='ffa button'   onclick="selectGM('ffa')">Free For All</div>
+          <div class='team2 button deactivated' onclick="selectGM('2team')">2 Teams</div>
+          <div class='team4 button deactivated' onclick="selectGM('4team')">4 Teams</div>
+        </div>
+      </div>
+      <div class='center-zone'>
+        <div id='queue' class = 'white-box'>
+          <span class='logo'>Obstar</span><div id='coin-box'><img src='./pic/dollar.svg'><span id='coin-data'>0</span></div>
+          <input id='in-game-name'   placeholder="Tank Name" maxlength="16"></input>
+          <div id = 'main-buttons'>
+            <button id='play-button' onmouseup="play()" autofocus>Play</button>
+            <button id='Lead'><img src='./pic/podium.svg'></button>
+          </div>
+          <script>
+            document.getElementById('play-button').addEventListener("keyup", function(event) {
+              // Number 13 is the "Enter" key on the keyboard
+              if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                play()
+              }
+            });
+          </script>
+        </div>
+        <div id='shop' class='white-box'>
+          <div id='shop-menu-radio'><span>Shop</span>
+            <input type="radio" id="shop_pet_is" class='radio' name="shop_menu" checked>
+            <label for="shop_pet_is">Pets</label>
+          </div>
+          <div id='pets-zone'>
+            <div class='item'>
+              <div class='item-inside'>
+                <div class='label'></div>
+                <div class='img'></div>
+                <div class='price'><span></span> <img src='./pic/dollar.svg'/></div>
+              </div>
+            </div>
+          </div>
+          <div id='shop-scroll'>
+            <div class='left'><</div>
+            <div class='right'>></div>
+          </div>
+        </div>
+        <div id='ad' class='white-box'>
+          advertisement
+        </div>
+      </div>
+      <div class='right-zone'>
+        <div id='Info' class='white-box'>
+          <div class='head-radio'>
+            <input type="radio" id="changelog_is" class='radio' name="radios" value="false">
+            <label for="changelog_is">Changelogs</label>
+            <input type="radio" id="info_is" class='radio' name="radios" value="false" checked>
+            <label for="info_is">Info</label>
+            <!--<input type="radio" id="_is" name="radios" value="true">
+            <label for="radio3">Nexus S</label>-->
+            <br/>
+            <div id = 'changelogs_info' class='inside_info'>
+              <h1>v0.2.0.2 - <span class='v'>2020-04-09</span></h1>
+              <div class='vIn'>
+                - 2 new tanks:</br>
+                &nbsp;&nbsp; Necromancer (Coming soon);</br>
+                &nbsp;&nbsp; Triple Twin;</br>
+                - Bots have been added to 2tdm</br>
+                - Destroyer branch buffed<br/>
+              </div>
+              <h1>v0.1.0.2 - <span class='v'>2020-04-07</span></h1>
+              <div class='vIn'>
+                - 2 new tanks:</br>
+                &nbsp;&nbsp; Gunner;</br>
+                &nbsp;&nbsp; Auto Gunner.</br>
+                - Destroyer/Hover branch got a bul. speed buff;</br>
+                - Treble, Fortress and Penta Shot got nerfed;</br>
+                - Trapper branch got nerfed.
+              </div>
+              <h1>Balances - <span class='v'>2020-04-06</span></h1>
+              <div class='vIn'>
+                -Hover Tanks Branch is faster; <br/>
+                -Destroyer branch have better bullet speed;<br/>
+                -Penta Shot and Treble nerfed; <br/>
+                -Alpha Shapes have now a health bar; <br/>
+                -Vision range is increased.
+              </div>
+              <h1>Balances - <span class='v'>2020-04-05</span></h1>
+              <div class='vIn'>
+                -Predator/Autocrat/Pilote Reload buffed; <br/>
+                -Movement speed buffed when little, nerfed when bigger<br/>
+                -One more point level.
+              </div>
+              <h1>v0.0.0.0 - <span class='v'>2020-04-04</span></h1>
+              <div class='vIn'>
+                Welcome to the first official release of Obstar !
+              </div>
+            </div>
+            <div id = 'info_info' class='inside_info'>
+              <h1>How to play</h1>
+              -Use <img class='keys' src="./pic/arrows_keys.svg"> or <img class='keys' src="./pic/wasd_keys.svg"> to move,<br/>
+              -Left click to shoot,<br/>
+              -Press E to toggle auto shoot,<br/>
+              -Press C to toggle auto spin,<br/>
+              -Press U to upgrade OR<br/>
+                press <div class='nb'>x1</div> above your tank.
+            </div>
+          </div>
+        </div>
+        <div id='Follow' class='white-box'>
+          <span>Obstar on...</span>
+          <div>
+            <button class='discord' onclick="window.location.href = 'https://discord.gg/Qp8Swss';"><img src='./pic/discord.svg' style='transform: translateY(2px);'/></button>
+            <button class='reddit'>Reddit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id='prevent_click' class='hide-prevent'></div>
+    <div id='messages' class='white-box hide-message'>
+      <svg id='log-svg' class='hide-svg' xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="150px" height="150px" viewBox="-20 -20 478.533 478.533" xml:space="preserve">
+      	<path fill='none' class='svg-icon' stroke='#5e5' stroke-width='15' d="M409.133,109.203c-19.608-33.592-46.205-60.189-79.798-79.796C295.736,9.801,259.058,0,219.273,0   c-39.781,0-76.47,9.801-110.063,29.407c-33.595,19.604-60.192,46.201-79.8,79.796C9.801,142.8,0,179.489,0,219.267   c0,39.78,9.804,76.463,29.407,110.062c19.607,33.592,46.204,60.189,79.799,79.798c33.597,19.605,70.283,29.407,110.063,29.407   s76.47-9.802,110.065-29.407c33.593-19.602,60.189-46.206,79.795-79.798c19.603-33.596,29.403-70.284,29.403-110.062   C438.533,179.485,428.732,142.795,409.133,109.203z M361.445,185.863L206.42,340.889c-3.617,3.62-7.992,5.428-13.134,5.428   c-4.948,0-9.229-1.808-12.847-5.428L77.083,237.539c-3.422-3.429-5.137-7.703-5.137-12.847c0-5.328,1.709-9.709,5.137-13.136   l25.981-25.693c3.621-3.616,7.898-5.424,12.85-5.424s9.235,1.809,12.85,5.424l64.525,64.523l116.485-116.199   c3.617-3.617,7.898-5.426,12.847-5.426c4.945,0,9.233,1.809,12.847,5.426l25.981,25.697c3.432,3.424,5.14,7.801,5.14,13.129   C366.589,178.154,364.881,182.437,361.445,185.863z"/>
+      </svg>
+      <svg id='warn-svg' class='hide-svg' xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="150px" height="150px" viewBox="-20 -20 478.533 478.533" xml:space="preserve">
+        <path fill='none' class='svg-icon' stroke='#fe3' stroke-width='15' xmlns="http://www.w3.org/2000/svg" d="M409.133,109.203c-19.608-33.592-46.205-60.189-79.798-79.796C295.736,9.801,259.058,0,219.273,0   c-39.781,0-76.466,9.801-110.063,29.407c-33.595,19.604-60.192,46.201-79.8,79.796C9.801,142.8,0,179.489,0,219.267   s9.804,76.463,29.407,110.062c19.607,33.585,46.204,60.189,79.799,79.798c33.597,19.605,70.283,29.407,110.063,29.407   s76.47-9.802,110.065-29.407c33.593-19.602,60.189-46.206,79.795-79.798c19.603-33.599,29.403-70.287,29.403-110.062   C438.533,179.489,428.732,142.795,409.133,109.203z M255.82,356.021c0,2.669-0.862,4.9-2.573,6.707s-3.806,2.711-6.283,2.711   h-54.818c-2.472,0-4.663-0.952-6.565-2.854c-1.904-1.903-2.854-4.093-2.854-6.563V301.78c0-2.478,0.95-4.668,2.854-6.571   c1.903-1.902,4.093-2.851,6.565-2.851h54.818c2.478,0,4.579,0.907,6.283,2.707c1.711,1.817,2.573,4.045,2.573,6.715V356.021z    M255.246,257.812c-0.192,1.902-1.188,3.568-2.991,4.996c-1.813,1.424-4.045,2.135-6.708,2.135h-52.822   c-2.666,0-4.95-0.711-6.853-2.135c-1.904-1.428-2.857-3.094-2.857-4.996L178.162,80.51c0-2.288,0.95-3.997,2.852-5.14   c1.906-1.521,4.19-2.284,6.854-2.284h62.819c2.666,0,4.948,0.76,6.851,2.284c1.903,1.143,2.848,2.856,2.848,5.14L255.246,257.812z"/>
+      </svg>
+      <svg id='abort-svg' class='hide-svg' xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="150px" height="150px" viewBox="-20 -20 478.533 478.533" xml:space="preserve">
+        <path fill='none' class='svg-icon' stroke='#e55' stroke-width='15' xmlns="http://www.w3.org/2000/svg" d="M409.133,109.203c-19.608-33.592-46.205-60.189-79.798-79.796C295.736,9.801,259.058,0,219.273,0   c-39.781,0-76.47,9.801-110.063,29.407c-33.595,19.604-60.192,46.201-79.8,79.796C9.801,142.8,0,179.489,0,219.267   c0,39.78,9.804,76.463,29.407,110.062c19.607,33.592,46.204,60.189,79.799,79.798c33.597,19.605,70.283,29.407,110.063,29.407   s76.47-9.802,110.065-29.407c33.593-19.602,60.189-46.206,79.795-79.798c19.603-33.596,29.403-70.284,29.403-110.062   C438.533,179.485,428.732,142.795,409.133,109.203z M322.621,270.939c3.617,3.613,5.428,7.905,5.428,12.854   c0,5.133-1.811,9.514-5.428,13.127l-25.693,25.701c-3.614,3.613-7.994,5.42-13.135,5.42c-4.948,0-9.236-1.807-12.847-5.42   l-51.676-51.682l-51.678,51.682c-3.616,3.613-7.898,5.42-12.847,5.42c-5.14,0-9.517-1.807-13.134-5.42l-25.697-25.701   c-3.616-3.613-5.424-7.994-5.424-13.127c0-4.948,1.809-9.24,5.424-12.854l51.678-51.673l-51.678-51.678   c-3.616-3.612-5.424-7.898-5.424-12.847c0-5.14,1.809-9.517,5.424-13.134l25.697-25.693c3.617-3.616,7.994-5.424,13.134-5.424   c4.949,0,9.231,1.809,12.847,5.424l51.678,51.674l51.676-51.674c3.61-3.616,7.898-5.424,12.847-5.424   c5.141,0,9.521,1.809,13.135,5.424l25.693,25.693c3.617,3.617,5.428,7.994,5.428,13.134c0,4.948-1.811,9.235-5.428,12.847   l-51.675,51.678L322.621,270.939z"/>
+      </svg>
+      <span>Couldn't process the command :/</span>
+    </div>
+    <script src= "./queue.js"></script>
+    <script src="./font.js"></script>
+    <script type='text/javascript' src='./shop.js'></script>
+    <script type='text/javascript'>
+    </script>
+  </body>
+</html>

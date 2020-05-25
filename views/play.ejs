@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Exo:800&display=swap" rel="stylesheet">
+    <link href="/fontStyle.css" rel="stylesheet">
+    <!--<link rel="stylesheet" type="text/css" href="/homeStyle.css">-->
+    <style>
+      body{
+        margin:0px;
+        padding:0px;
+        overflow: hidden;
+        background-color: #202326;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      #console{
+        position: absolute;
+        bottom:20px;
+        left:-1px;
+        color: #bcbcbc;
+        /*height: 30px;*/
+        padding: 2px;
+        width: 25%;
+        background: rgba(0,0,0,.6);
+        font-family: 'Lucida console';
+        font-weight: normal;
+        font-size: .8em;
+        vertical-align: text-bottom;
+      }
+      #dinput{
+        margin-top: 2px;
+        padding-left: 10px;
+        background-color: transparent;
+        color: #bbbbbb;
+        border: 0px;
+        width: 100%;
+        font-family: 'Lucida console';
+        font-weight: normal;
+        font-size: 1.2em;
+      }
+      #console div{
+        margin: 1px;
+      }
+      input:focus{
+        outline: none;
+        border: 0px;
+      }
+      #chat{
+        position: absolute;
+        bottom:12px;
+        left:16px;
+        opacity: .9;
+        background: rgba(0,0,0,0.3);
+        padding: 3px;
+        border-radius: 2px;
+      }
+      #cinput{
+        border: 3px #222222 solid;
+        font-family: 'Catamaran';
+        background: #eeeeee;
+        font-size: 1.2em;
+        font-weight: 700;
+        border-radius: 3px;
+        width: 320px;
+        line-height: 100%;
+        padding-bottom: 9px;
+        padding-top: 14px;
+        height: 0px;
+        padding-left: 4px;
+      }
+      #mess{
+        color: #fff;
+        font-family: 'Catamaran';
+        font-size: 1em;
+        font-weight: 500;
+        line-height: 100%;
+        width: 331px;
+        height: 160px;
+        word-wrap: break-word;
+        overflow-y: auto;
+        margin-bottom: 5px;
+      }
+      #mess span{
+        font-weight: 700;
+      }
+      #mess::-webkit-scrollbar {
+        width: 6px;
+      }
+      #mess::-webkit-scrollbar-track {
+        background: #7c7c7c;
+        border-radius: 5px;
+      }
+      #mess::-webkit-scrollbar-thumb {
+        background: #4d4d4d;
+        border-radius: 5px;
+      }
+      #mess::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+    <script type='text/javascript' src='./SHARE/ws_link.js'></script>
+    <script type='text/javascript'>var POST = <%- data %>;</script>
+    <script type='text/javascript' src='./SHARE/TanksConfig.js'></script>
+    <script type='text/javascript' src='./SHARE/PetsConfig.js'></script>
+    <script type='text/javascript' src='./SHARE/SocketSchema.js'></script>
+  </head>
+  <body>
+    <script src='/new2Init.js' ></script>
+  </body>
+</html>

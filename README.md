@@ -10,7 +10,7 @@ Create statement for the database
 ```
 CREATE DATABASE `users` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
 ```
-Then, you have to use the data base users: ```use users```
+Then, you have to use the database users: ```use users```
 
 Create statement for the accounts table :
 ```

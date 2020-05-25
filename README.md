@@ -52,8 +52,8 @@ CREATE TABLE `wrs` (
 ) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8;
 ```
 For the leaderboard to work, you need to insert at least one row: 
-```insert into wrs value(NULL,'unnamed',0,'Basic','ffa',NULL,NOW());```
-
+```
+insert into wrs value(NULL,'unnamed',0,'Basic','ffa',NULL,NOW());
 ```
 
 Create statement for the dev-token table :

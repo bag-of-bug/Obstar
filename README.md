@@ -3,7 +3,7 @@ This is the original Obstar source code.
 The game still need a lot of work, I could help a little bit if some of you are planning on making a serious version of it.
 ## Prerequisites
 Run on nodejs 10 an above;
-All the dependencies are in config.js.
+All the dependencies are in package.json.
 ## Things you need to know
 The game could still be optimized. Also, the code is not clean, so it might be hard to understad what's happening. Again, if you are planning on working on it seriously, i could help a little bit.
 ###

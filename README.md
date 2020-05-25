@@ -7,7 +7,11 @@ All the dependencies are in config.js.
 ## Things you need to know
 The game could still be optimized. Also, the code is not clean, so it might be hard to understad what's happening. Again, if you are planning on working on it seriously, i could help a little bit.
 ###
-those 
+There is two main server files, ```obstarWeb.js``` and ```Alex.js```
+obstarWeb is the web server, its handling the http request, the html/css/js files and the shop/leaderboad/accounts databases.
+Alex.js is the actual game.
+###
+it's possible to put the web server, the game server and the mysql server on different machines.
 ## Mysql Database
 To work, obstar needs a mysql database with the following tables:
 Create statement for the database 

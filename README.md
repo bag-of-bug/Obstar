@@ -1,6 +1,6 @@
 # Obstar.io/Korexk.io server
 This is the original Obstar source code.
-The game still need a lot of work, I could help a little bit if some of you are planning on making a serious version of it.
+The game still need a lot of work and love, I could help a little bit if some of you are planning on remaking a serious version of it.
 ## Prerequisites
 Run on nodejs 10 an above;
 All the dependencies are in package.json.

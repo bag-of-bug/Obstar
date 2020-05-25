@@ -4,8 +4,12 @@ The game still need a lot of work, I could help a little bit if some of you are 
 ## Prerequisites
 Run on nodejs 10 an above;
 All the dependencies are in config.js.
+## Things you need to know
+The game could still be optimized. Also, the code is not clean, so it might be hard to understad what's happening. Again, if you are planning on working on it seriously, i could help a little bit.
+###
+those 
 ## Mysql Database
-To work, obstar needs a mysql database withe the following tables:
+To work, obstar needs a mysql database with the following tables:
 Create statement for the database 
 ```
 CREATE DATABASE `users` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;

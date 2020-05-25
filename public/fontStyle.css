@@ -1,0 +1,20 @@
+@font-face {
+  font-family: Catamaran;
+  src: url(./font/Catamaran-Medium.ttf);
+  font-weight: normal;
+}
+@font-face {
+  font-family: Catamaran;
+  src: url(./font/Catamaran-SemiBold.ttf);
+  font-weight: 600;
+}
+@font-face {
+  font-family: Catamaran;
+  src: url(./font/Catamaran-Bold.ttf);
+  font-weight: 700;
+}
+@font-face {
+  font-family: Catamaran;
+  src: url(./font/Catamaran-ExtraBold.ttf);
+  font-weight: 800;
+}

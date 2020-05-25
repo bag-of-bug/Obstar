@@ -1,0 +1,88 @@
+.showDiv{
+  opacity: 1;
+  top: 50%;
+  left: 50%;
+}
+.hideDiv{
+  top: 45%;
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+#leadeBox{
+  position: absolute;
+  transform: translate(-50%,-50%);
+  width: 48%;
+  transition: .5s;
+  overflow: hidden;
+}
+#leadeBox h1{
+  line-height: 15px;
+  text-align: left;
+  font-size: 1.2em;
+  font-weight: 700;
+  padding-left: 10px;
+  color: #dde;
+}
+.leadZone{
+  height: 450px;
+  overflow-y: auto;
+}
+
+.leader{
+  text-align: right;
+  font-size: 1em;
+  font-weight: 700;
+  color: #5b5b6b;
+  height: 60px;
+  background: #eeeef6;
+  line-height: 60px;
+}
+.leader:nth-child(2n+0) {
+  background-color: white;
+}
+.leader .pos{
+  float: left;
+  width: 40px;
+  font-size: 1.3em;
+  opacity: 0.5;
+}
+.leader .name{
+  text-align: left;
+  float: left;
+  width: calc(36% - 40px);
+  font-size: 1.1em;
+}
+.leader div{
+  text-align: center;
+  display: inline-block;
+  width: 16%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.leaderinfo{
+  line-height: 15px;
+  text-align: right;
+  font-size: .85em;
+  height: 15px;
+  opacity: .6;
+  width: calc(100% - 10px);
+}
+.leader .isMe{
+  color: #5b7bdb;
+}
+
+.leadZone::-webkit-scrollbar {
+  width: 10px;
+}
+.leadZone::-webkit-scrollbar-track {
+  background: #e6e6eb;
+  border-radius: 5px;
+}
+.leadZone::-webkit-scrollbar-thumb {
+  background: #aac;
+  border-radius: 5px;
+}
+.leadZone::-webkit-scrollbar-thumb:hover {
+  background: #bbc;
+}

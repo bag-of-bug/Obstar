@@ -1,3 +1,4 @@
+
 function selectGM(gm){
   var elem = document.getElementById('gamemode-box').getElementsByClassName('button');
   State = gm;
@@ -67,9 +68,14 @@ window.onload = function(){
   }
   var Req = new XMLHttpRequest();
   Req.onload = function(){
-    let data = window.UserData = JSON.parse(this.responseText);
+    var data = 0
+    try{
+      data = window.UserData = JSON.parse(this.responseText);
+    } catch {
+
+    }
     if(!data){
-      let data = window.UserData = {};
+      data = window.UserData = {coins:0};
     }
     document.getElementById('coin-data').innerHTML = data.coins;
     if(UserData.own && UserData.own.pets) {

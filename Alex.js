@@ -6,16 +6,17 @@ process.on('uncaughtException', function(err) {
   log_file_err.write(util.format('Caught exception: '+err) + '\n');
 });
 
+var c            = require('./lib/config.js').config;
 var Vec          = require('victor');
-var mysql        = require('mysql');
-var USERS = mysql.createPool(require('./lib/AlexMysql.js').info);
-USERS.getConnection(function(err) {
-  if (err) throw err;
-  console.log("connect database");
+var USERS = c.MYSQL ? require('mysql').createPool(require('./lib/AlexMysql.js').info) : 0;
+if (USERS) {
+  USERS.getConnection(function(err) {
+    if (err) throw err;
+    console.log("connect database");
 });
+}
 ///
 var http = require('http');
-
 var server = http.createServer(function(request, response) {
     response.writeHead(404);
     response.end();
@@ -206,7 +207,7 @@ var ws        = (function(){
       }
       ///DEAD
       let play = Controller.getPlayer(socket.id);
-      if(this.dead>BEFORE_KICK){
+      if(this.dead>c.S_BEFORE_KICK){
         kick(this.socket,'ERR_SERVER_OFF');
         return;
       }
@@ -291,36 +292,17 @@ const cc = (()=>{
   }
 })()
 ///
-const NEED_KEY = 0; //if set on false, the person dont need to be connected to play;
-const BEFORE_KICK = 120;
-const MAX_IP      = 2;
 const FRICTION = 0.964;
-const DES = 10;
-const DEAD_DELAY = 150;
-const KEEP_PLACE = 20;
-const SIZE_GET_POS = 40;
 const CLASS = TanksConfig.class;
 const CLASS_TREE = TanksConfig.tree;
-const NAME_COLOR = [
-  0,500000,1000000,1500000,
-  2000000,2500000,0,4000000,
-  6000000,8000000,10000000,
-  12000000,0,15555555,22222222,
-  27777777,33333333,39999999
-];
-const XPLVL = [
-  0,40,80,140,200,300,450,650,900,1250,
-  1500,1750,2000,2300,2600,3000,3400,3900,4400,5000,
-  5600,6200,6800,7500,8400,9200,10300,11300,12400,13500
-];
-const CONFIG = {
-  BOTS:[
+var CONFIG = {
+  'BOTS':[
     function(){
       if(isNaN(this.path)){
         this.path = CONFIG.BOT_PATHS[parseInt(Math.random()*CONFIG.BOT_PATHS.length)]
       }
       if(this.stillLvl){
-        this.upgrade(CONFIG.BOTS_UPS[this.path.up ? this.path.up : 0][this.stillLvl]);
+        this.upgrade(CONFIG.BOT_UPS[this.path.up ? this.path.up : 0][this.stillLvl]);
       }
       if(this.shield && this.xp<25000){
         this.shield--;
@@ -527,8 +509,8 @@ const CONFIG = {
       //this.inputs.c = 1;
     }
   ],
-  BOT_NAMES:require('./name.js').name,
-  BOT_PATHS:[
+  'BOT_NAMES':'./name.js',
+  'BOT_PATHS':[
     {
       class:['Twin','Triple','Treble'],
     },
@@ -553,16 +535,16 @@ const CONFIG = {
       up: 1
     },
   ],
-  BOTS_UPS:[
+  'BOT_UPS':[
     [1,3,4,3,1,4,3,3,3,
      2,2,1,6,6,3,4,2,1,
      2,6,1,1,0,0,7,2,1],
      ///SNIPER
-     [1,1,3,3,4,4,2,2,2,
+    [1,1,3,3,4,4,2,2,2,
       2,3,4,2,3,4,1,1,4,
       1,1,3,3,4,0,0,0,4]
   ],
-  botThreshold:{
+  'botThreshold':{
     farm: 300,
     attack: 11,
     attackHp: 20,
@@ -578,7 +560,8 @@ const CONFIG = {
     runDis: 1,
     farmDis: 700
   },
-  BOSS:[
+  ///
+  'BOSS':[
     [
       function(){
         if(!this.DETEC){
@@ -648,7 +631,7 @@ const CONFIG = {
       'Summoner'
     ],
   ],
-  PETS:[
+  'PETS':[
     function(play){
       this.showDir = Math.atan2((play.y+play.inputs.mouse_y)-this.y,play.x+play.inputs.mouse_x-this.x)
       if(!this.delay){
@@ -673,7 +656,9 @@ const CONFIG = {
       this.y+=this.vec.y;
     }
   ]
-};
+}
+CONFIG.BOT_NAMES = require(CONFIG.BOT_NAMES).name;
+///
 class quadTree{
   constructor(x,y,w,h,max){
     this.points = [];
@@ -755,7 +740,6 @@ class Main {
       'boss':[]
     };
     this.ipConnect = {};
-    this.THIRD = 0;
     this.clients = [];
     this.chat = (function(){
       let chatRoom = [];
@@ -842,18 +826,20 @@ class Main {
         rm: rm
       }
     }.bind(this))()
-    this.devs = {};
-    this.scores = 0;
-    this.highestScoreId = 0;
-    USERS.query('SELECT score, id FROM wrs ORDER BY score DESC LIMIT '+this.scoresLimit,function(err,lead){
-      if(err) throw err;
-      this.scores = new Array(lead.length).fill(0).map((x,y)=>{return {id:lead[y].id,score:lead[y].score}});
-      this.scores.forEach((item) => {
-        if(item.id>this.highestScoreId){
-          this.highestScoreId = item.id;
-        }
-      });
-    }.bind(this));
+    if(USERS && c.DB.DEV) this.devs = {};
+    if(USERS && c.DB.LB){
+      this.scores = 0;
+      this.highestScoreId = 0;
+      USERS.query('SELECT score, id FROM wrs ORDER BY score c.DESC LIMIT '+this.scoresLimit,function(err,lead){
+        if(err) throw err;
+        this.scores = new Array(lead.length).fill(0).map((x,y)=>{return {id:lead[y].id,score:lead[y].score}});
+        this.scores.forEach((item) => {
+          if(item.id>this.highestScoreId){
+            this.highestScoreId = item.id;
+          }
+        });
+      }.bind(this));
+    }
   }
   askConnection(data,ip){
     var clientId = this.clients.length;
@@ -864,22 +850,8 @@ class Main {
       }
     }
     this.clients[clientId] = 'Waiting';
-    USERS.query('SELECT * FROM acc WHERE userKey = ?',[data.key],function(err,user,fields){
-      /// ERR_BROKEN_KEY
-      var brokenKey = 0;
-      if(!user || !user.length){
-        if(NEED_KEY){
-          Controller.clients[clientId]='ERR_BROKEN_KEY';
-          return;
-        } else {
-          brokenKey = 1;
-        }
-      }
-      /////
-      let totalServer = 0;
-      for(let i in Controller.server){
-        totalServer+= Controller.server[i].length;
-      }
+    ///
+    var connect = (data,ip)=>{
       /// ERR_GAMEMODE
       switch(data.gm){
         case 'ffa':
@@ -889,32 +861,20 @@ class Main {
         default: Controller.clients[clientId]='ERR_GAMEMODE';
         return;
       }
-      var name = data.name;
       /////
-      if(!(0 <= name.length <= Controller.maxPseudoLength)){
-        name = "unnamed";
+      if(!(0 <= data.name.length <= Controller.maxPseudoLength)){
+        data.name = "unnamed";
       }
       /// ERR_DOUBLE_IP
       if(typeof Controller.ipConnect[ip] === 'undefined'){
         Controller.ipConnect[ip] = 1;
       } else {
-        if(Controller.ipConnect[ip]<MAX_IP){
+        if(Controller.ipConnect[ip]<c.MAX_IP){
           Controller.ipConnect[ip]++;
         } else {
           Controller.clients[clientId]='ERR_DOUBLE_IP';
           return;
         }
-      }
-      ///check pet///
-      if(!brokenKey){
-        try {
-          user[0].userData = JSON.parse(user[0].userData);
-        } catch {
-
-        }
-        if(!user[0].userData.own.pets[data.pet]) data.pet = -1;
-      } else {
-        data.pet = -1;
       }
       ///try to connect///
       for(let s of Controller.server[data.gm]){
@@ -930,17 +890,48 @@ class Main {
       /// ERR_SERVER_FULL
       let server = Controller.newServer(data.gm);
       let serverAns = server.ask(data);
-      serverAns.key = data.key;
       Controller.clients[clientId]=serverAns;
-    });
+    }
+    ///
+    if(USERS && c.DB.ACC){
+      USERS.query('SELECT * FROM acc WHERE userKey = ?',[data.key],function(err,user,fields){
+        /// ERR_BROKEN_KEY
+        var brokenKey = 0;
+        if(!user || !user.length){
+          if(c.KEY_ISNEEDED){
+            Controller.clients[clientId]='ERR_BROKEN_KEY';
+            return;
+          } else {
+            brokenKey = 1;
+          }
+        }
+        ///check pet///
+        if(!brokenKey){
+          try {
+            user[0].userData = JSON.parse(user[0].userData);
+            if(!user[0].userData.own.pets[data.pet]) data.pet = -1;
+          } catch {
+            data.pet = -1
+          }
+        } else {
+          data.pet = -1;
+        }
+        ///
+        connect(data,ip);
+        ///
+      });
+    } else {
+      connect(data,ip)
+    }
     return clientId;
   }
   command(id,com){
+    if(!USERS || !c.DB.DEV) return;
     if(!com.length || typeof this.clients[id] !== 'object'){return;}
     com = com.split(" ");
     if(com[0] == 'disconnect'){
       if(this.clients[id].dev){
-        /*delete this.devs[this.clients[id].dev];*/
+        //delete this.devs[this.clients[id].dev];
         this.clients[id].dev = 0;
         return 'disconnected successfully';
       }
@@ -1216,6 +1207,7 @@ class Main {
     return s;
   }
   insertLB(name,score,tank,gm,key){
+    if(!USERS || !c.DB.LB) return;
     if(this.scores && score){
       for(let i = this.scores.length-1; i>=0; i--){
         if(score>this.scores[i].score && ((i==0) ? true : score<=this.scores[i-1].score)){
@@ -1265,7 +1257,7 @@ class Main {
     if(typeof p !== 'object'){return;}
     ///
     if(p.dev){
-      /*delete this.devs[p.dev];*/
+      //delete this.devs[p.dev];
     }
     if(p.chat){
       this.chat.rm(p.chat);
@@ -1273,11 +1265,6 @@ class Main {
     ///
     let tank =  this.server[p.GM][p.sId].INSTANCE.players[p.oId];
     if(!p.dev && isNaN(p.dev)) this.insertLB(tank.name,tank.xp,tank.class,p.GM,p.key);
-    if(tank.coins){
-      USERS.query('UPDATE acc SET coins = coins + ? WHERE userKey = ?',[tank.coins,p.key],function(err){
-        if(err) throw err;
-      })
-    }
     tank.state.disconnect = 1;
   }
   respawn(id){
@@ -1324,6 +1311,7 @@ class Sffa {
     };
     this.maxPlayer = 24;
     this.print = 1;
+    this.leader = [];
     this.map = {
       width: 9020,
       height: 9020
@@ -1504,7 +1492,7 @@ class Sffa {
             delete this.INSTANCE[c][j];
           }
           continue;
-        }
+        } else if(!i) continue;
         if(c === 'players' && !i.destroy){
           if(this.leader.length){
             for(let l = Math.min(this.leader.length-1,9); l>=0; l--){
@@ -1539,11 +1527,11 @@ class Sffa {
             }
           }
           if(c == "objs"){this.INSTANCE[c][j].delete();}
-          if(c == 'bullets'){this.INSTANCE[c][j] = KEEP_PLACE; continue;}
+          if(c == 'bullets'){this.INSTANCE[c][j] = c.KEEP_PLACE; continue;}
           delete this.INSTANCE[c][j];
         } else {
           if(i.getPlace == 1){
-            i.size+=SIZE_GET_POS;
+            i.size+=c.SIZE_GET_POS;
           }
           qt.insert(i.x,i.y,i.size,i);
         }
@@ -1709,7 +1697,7 @@ class Sffa {
         }
         if(obj.getPlace == 1){
           delete obj.getPlace;
-          obj.size -= SIZE_GET_POS;
+          obj.size -= c.SIZE_GET_POS;
         } else if(obj.getPlace == 0){
           obj.delete();
           delete this.INSTANCE[c][o];
@@ -2028,6 +2016,7 @@ class S2team {
       width: 8000,
       height: 8000
     };
+    this.leader = [];
     this.newMap = {
       width: 7600,
       height: 76000
@@ -2278,7 +2267,7 @@ class S2team {
             delete this.INSTANCE[c][j];
           }
           continue;
-        }
+        } else if(!i) continue;
         if(c === 'players' && !i.destroy && !i.boss){
           if(this.leader.length){
             for(let l = Math.min(this.leader.length-1,9); l>=0; l--){
@@ -2313,12 +2302,12 @@ class S2team {
               continue;
             }
           }
-          if(c == "objs"){this.INSTANCE[c][j].delete();this.INSTANCE[c][j] = KEEP_PLACE; continue;}
-          if(c == 'bullets'){this.INSTANCE[c][j] = KEEP_PLACE; continue;}
+          if(c == "objs"){this.INSTANCE[c][j].delete();this.INSTANCE[c][j] = c.KEEP_PLACE; continue;}
+          if(c == 'bullets'){this.INSTANCE[c][j] = c.KEEP_PLACE; continue;}
           delete this.INSTANCE[c][j];
         } else {
           if(i.getPlace == 1){
-            i.size+=SIZE_GET_POS;
+            i.size+=c.SIZE_GET_POS;
           }
           qt.insert(i.x,i.y,i.size,i);
         }
@@ -2509,7 +2498,7 @@ class S2team {
         }
         if(obj.getPlace == 1){
           delete obj.getPlace;
-          obj.size -= SIZE_GET_POS;
+          obj.size -= c.SIZE_GET_POS;
         } else if(obj.getPlace == 0){
           obj.delete();
           delete this.INSTANCE[c][o];
@@ -3057,8 +3046,8 @@ class Player {
     }
     if(option.base){
       this.alpha = 1;
-      this.destroy = DES;
-      this.dead = DEAD_DELAY;
+      this.destroy = c.DES;
+      this.dead = c.DEAD_DELAY;
       return;
     }
     let oldHp = this.hp;
@@ -3069,9 +3058,9 @@ class Player {
         this.hp-=other.damage;
         this.hit = 2;
         if(this.hp <= 0){
-          this.dead = DEAD_DELAY;
+          this.dead = c.DEAD_DELAY;
           this.murder = ["players",other.id];
-          this.destroy = DES;
+          this.destroy = c.DES;
           other.xp += this.prize;
           if(this.coinReward) other.coins+=this.coinReward;
           if(!other.bot){
@@ -3099,7 +3088,7 @@ class Player {
         if(this.shield){return;}
         this.hp-=other.damage;
         this.hit = 2;
-        if(this.hp <= 0){this.dead = DEAD_DELAY; this.murder = ["objs",other.id];this.destroy = DES}
+        if(this.hp <= 0){this.dead = c.DEAD_DELAY; this.murder = ["objs",other.id];this.destroy = c.DES}
         break;
       case 'Bullet':
         if(option.noDam){break;}
@@ -3113,7 +3102,7 @@ class Player {
         if(this.shield){return;}
         this.hp-=other.damage*Math.max(1,other.pene/5);
         this.hit = 2;
-        if(this.hp <= 0){this.dead = DEAD_DELAY; this.murder = ["players",other.origine]; this.destroy = DES;}
+        if(this.hp <= 0){this.dead = c.DEAD_DELAY; this.murder = ["players",other.origine]; this.destroy = c.DES;}
         break;
     }
     if(this.alpha<1 && !this.dev.invisible){
@@ -3131,13 +3120,13 @@ class Player {
       this.x+=this.vec.x;
       this.y+=this.vec.y;
       this.destroy-=1;
-      this.alpha = (this.destroy-1)/DES;
+      this.alpha = (this.destroy-1)/c.DES;
       this.size *= 1.04;
       this.screen = 2194;
       return;
     } else {
       if(this.hp <= 0){
-        this.destroy = DES;
+        this.destroy = c.DES;
         this.dead = 1;
       }
       if(this.hpregan[0] > this.hp){
@@ -3178,7 +3167,7 @@ class Player {
     if(this.state.disconnect){
       this.hp-=this.maxHp/1000;
       if(this.hp<=0){
-        this.destroy = DES;
+        this.destroy = c.DES;
       }
     }
     this.size = 28+this.dev.size+Math.floor(this.level/2.8);
@@ -3325,7 +3314,7 @@ class Objects {
         this.vec.add(new Vec(this.x-other.x,this.y-other.y).norm().multiply(new Vec(len,len)));
         this.hp-=other.damage;
         this.hit = 2;
-        if(this.hp <= 0){this.destroy = DES;other.xp += this.prize;other.coins+=this.coinReward}
+        if(this.hp <= 0){this.destroy = c.DES;other.xp += this.prize;other.coins+=this.coinReward}
         break;
       case "Objects":
         if(other.type == 'bull'){
@@ -3344,7 +3333,7 @@ class Objects {
         }
         this.hp-= ((option.pene>1) ? option.pene : option.pene/2)*other.damage;
         this.hit = 2;
-        if(this.hp <= 0){this.destroy = DES;}
+        if(this.hp <= 0){this.destroy = c.DES;}
         if(this.type[0] == 'B'){
           break;
         }
@@ -3358,7 +3347,7 @@ class Objects {
       this.x+=this.vec.x/this.weight;
       this.y+=this.vec.y/this.weight;
       this.destroy-=1;
-      this.alpha = this.destroy/DES;
+      this.alpha = this.destroy/c.DES;
       this.size += 1+this.size*.01;
       return;
     }
@@ -3444,7 +3433,7 @@ class Bullet {
       }
     }
     if(option.base){
-      this.destroy = DES;
+      this.destroy = c.DES;
     }
     if(other){
       switch(other.constructor.name){
@@ -3455,7 +3444,7 @@ class Bullet {
           }
           this.vec.add(new Vec(this.x-other.x,this.y-other.y).norm().multiply(new Vec(this.weight,this.weight)));
           this.pene -= Math.max(1,this.pene/5);
-          if(this.pene <= 0){this.destroy = DES}
+          if(this.pene <= 0){this.destroy = c.DES}
           break;
         case "Objects":
           this.vec.add(new Vec(this.x-other.x,this.y-other.y).norm().multiply(new Vec(this.weight,this.weight)));
@@ -3477,7 +3466,7 @@ class Bullet {
             }
           }
           this.pene -= Math.max(this.pene/2,1);
-          if(this.pene <= 0){this.destroy = DES}
+          if(this.pene <= 0){this.destroy = c.DES}
           break;
         case 'Bullet':
           if(other.origine.oId == this.origine.oId){
@@ -3489,7 +3478,7 @@ class Bullet {
           }
           if(option.noDam || this.type == 1.4){break;}
           this.pene-=option.pene;
-          if(this.pene <= 0){this.destroy = DES;}
+          if(this.pene <= 0){this.destroy = c.DES;}
           break;
       }
     }
@@ -3505,7 +3494,7 @@ class Bullet {
       this.x+=this.vec.x;
       this.y+=this.vec.y;
       this.destroy-=1;
-      this.alpha = (this.destroy)/DES;
+      this.alpha = (this.destroy)/c.DES;
       this.size *= 1.03;
       return;
     }
@@ -3514,11 +3503,11 @@ class Bullet {
     if(!this.alone){
       play = Controller.server[this.origine.GM][this.origine.sId].INSTANCE.players[this.origine.oId];
       if(typeof play === "undefined"){
-        this.destroy = DES;
+        this.destroy = c.DES;
         return;
       } else {
         if(play.destroy > 1 || play.dead || play.state.disconnect || play.class != this.class){
-          this.destroy = DES;
+          this.destroy = c.DES;
           return;
         }
       }
@@ -3587,7 +3576,7 @@ class Bullet {
         }
         this.speed = this.maxspeed;
         if(play.droneCount == -1){
-          this.destroy =DES;
+          this.destroy =c.DES;
         }
         ///
         if(!this.DETEC){
@@ -3848,7 +3837,7 @@ class Bullet {
       return;
     };
     if(this.life==0){
-        this.destroy = DES;
+        this.destroy = c.DES;
     } else {
         this.life -= 1;
     }

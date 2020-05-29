@@ -1,5 +1,10 @@
 (function(window){
   var PETS = document.getElementById('pets-zone');
+  if(POST.shop.HIDE){
+    document.getElementById('shop').style.display = 'none';
+    window.ChosenPet = -1;
+    return;
+  }
   var SHOP_SCROLL = (()=>{
     let result = {
 

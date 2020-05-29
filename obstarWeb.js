@@ -8,7 +8,6 @@ process.on('uncaughtException', function(err) {
   log_file_err.write(util.format('Caught exception: '+err) + '\n');
 });
 
-var mysql        = require('mysql');
 var http         = require('http');
 var express      = require('express');
 var bodyParser   = require('body-parser');
@@ -16,95 +15,126 @@ var cookieParser = require('cookie-parser');
 var Vec          = require('victor');
 
 var app          = express();
-var USERS = mysql.createPool(require('./lib/webMysql.js').info);
-USERS.getConnection(function(err) {
-  if (err) throw err;
-  console.log("connect database");
-});
+var c = require('./lib/config.js').config;
+var USERS = c.MYSQL ? require('mysql').createPool(require('./lib/webMysql.js').info) : 0;
 ///
 var LEADERBOARD = [];
-let updateLB = ()=>{
-    USERS.query('SELECT score, name, tank, gm, DATE_FORMAT(date, "%d-%m-%Y") AS date FROM wrs ORDER BY score DESC',function(err,leader){
-      if (err) throw(err);
-      LEADERBOARD = leader;
-    })
-  };
-updateLB();
-var SHOP = {};
+var SHOP = {HIDE:1};
 var SHOPPER = {};
-let updateShop = ()=>{
-    USERS.query('SELECT class, id, label, price FROM shop',function(err,shop){
-      if (err) throw(err);
-      shop.forEach((item)=>{
-        SHOP[item.class] = SHOP[item.class] || [];
-        SHOP[item.class][item.id] = {
-          label: item.label,
-          price: item.price,
-        }
+///
+if(USERS){
+  USERS.getConnection(function(err) {
+    if (err) throw err;
+    console.log("connect database");
+  });
+  if(c.DB.LB){
+    let updateLB = ()=>{
+      USERS.query('SELECT score, name, tank, gm, DATE_FORMAT(date, "%d-%m-%Y") AS date FROM wrs ORDER BY score DESC',function(err,leader){
+        if (err) throw(err);
+        LEADERBOARD = leader;
       })
-    })
-};
-updateShop();
-setInterval(updateLB,120000);
-setInterval(updateShop,120000);
+    };
+    updateLB();
+    setInterval(updateLB,120000);
+  }
+  if(c.DB.SHOP){
+    let updateShop = ()=>{
+      USERS.query('SELECT class, id, label, price FROM shop',function(err,shop){
+        if (err) throw(err);
+        shop.forEach((item)=>{
+          SHOP[item.class] = SHOP[item.class] || [];
+          SHOP[item.class][item.id] = {
+            label: item.label,
+            price: item.price,
+          }
+        })
+      })
+    };
+    updateShop();
+    setInterval(updateShop,120000);
+  } else {
+    SHOP.HIDE = 1
+  }
+}
+///
 var generateKey = (()=>{
   let str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
   return (length)=>{
     return new Array(length).fill(0).map((x)=>{return str[parseInt(Math.random()*str.length)]}).join('');
   }
 })()
+var basicKey = '0'.repeat(25);
 ///
 app.use( express.static(__dirname+'/public'));
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded({ extended: true }) );
 app.use( cookieParser() );
 
+
 app.get('/favicon.ico', async function(req,res){res.status(404).end()});
 app.get('*', function(request, respond){
     let id = parseInt(Math.random()*1000);
     var KEY = request.cookies.obstarkey || 1;
     /// get the acc///
-    USERS.query('SELECT * FROM acc WHERE userKey LIKE ?',[KEY],function(err,result,fields){
-      if(result && result.length && result[0]){ ///   THERE IS AN ACC  ///
-        USERS.query("UPDATE acc SET lastConnection = NOW() WHERE userKey = ?",[KEY],function(err){if(err){throw(err)}});
-        respond.cookie('obstarkey',KEY,{expires: new Date(253402300000000),sameSite:'Lax'});
-        let sendData = {
-          key:KEY,
-          leader: LEADERBOARD,
-          shop: SHOP
-        };
-        respond.render('index.ejs', {data:JSON.stringify(sendData)});
-        return;
-      } else {           /// there is no acc :-(///
-        let newkey = generateKey(25);
-        USERS.query("INSERT INTO acc VALUES (NULL,?,?,?,NOW(),255000)",[
-          newkey,
-          JSON.stringify({own:{pets:{}}}),
-          request.connection.remoteAddress
-        ]);
-        respond.cookie('obstarkey',newkey,{expires: new Date(253402300000000),sameSite:'Lax'});
-        let sendData = {
-          key:newkey,
-          leader: LEADERBOARD,
-          shop: SHOP
-        };
-        respond.render('index.ejs', {data:JSON.stringify(sendData)});
-        return;
-      }
-    });
+    if(USERS && c.DB.AC){
+      USERS.query('SELECT * FROM acc WHERE userKey LIKE ?',[KEY],function(err,result,fields){
+        if(result && result.length && result[0]){ ///   THERE IS AN ACC  ///
+          USERS.query("UPDATE acc SET lastConnection = NOW() WHERE userKey = ?",[KEY],function(err){if(err){throw(err)}});
+          respond.cookie('obstarkey',KEY,{expires: new Date(253402300000000),sameSite:'Lax'});
+          let sendData = {
+            key:KEY,
+            leader: LEADERBOARD,
+            shop: SHOP
+          };
+          respond.render('index.ejs', {data:JSON.stringify(sendData)});
+          return;
+        } else {           /// there is no acc :-(///
+          let newkey = generateKey(25);
+          USERS.query("INSERT INTO acc VALUES (NULL,?,?,?,NOW(),255000)",[
+            newkey,
+            JSON.stringify({own:{pets:{}}}),
+            request.connection.remoteAddress
+          ]);
+          respond.cookie('obstarkey',newkey,{expires: new Date(253402300000000),sameSite:'Lax'});
+          let sendData = {
+            key:newkey,
+            leader: LEADERBOARD,
+            shop: SHOP
+          };
+          respond.render('index.ejs', {data:JSON.stringify(sendData)});
+          return;
+        }
+      });
+    } else {
+      let sendData = {
+        key: basicKey,
+        leader: LEADERBOARD,
+        shop: SHOP
+      };
+      console.log(SHOP);
+      respond.render('index.ejs', {data:JSON.stringify(sendData)});
+    }
 });
 app.post('/userData', function(req,res){
-  USERS.query('SELECT userData, coins FROM acc WHERE userKey = ?',[req.body.userKey],function(err,result,fields){
-    if(result.length){
-      let data = JSON.parse(result[0].userData);
-      data.coins = result[0].coins;
-      res.status(200).send(JSON.stringify(data));
-    } else {
-      res.status(200).send('none');
-    }
-  });
+  if(USERS && c.DB.ACC){
+    USERS.query('SELECT userData, coins FROM acc WHERE userKey = ?',[req.body.userKey],function(err,result,fields){
+      if(result.length){
+        let data = JSON.parse(result[0].userData);
+        data.coins = result[0].coins;
+        res.status(200).send(JSON.stringify(data));
+      } else {
+        res.status(200).send('none');
+      }
+    });
+  } else {
+    res.status(200).send('none');
+  }
 });
 app.post('/buy',function(req,res){
+  if(!USERS || !c.DB.ACC || !c.DB.SHOP){
+    res.status(200).send('no obj');
+    return;
+  }
   if(SHOPPER[req.body.userKey]){
     res.status(200).send('already');
     return;

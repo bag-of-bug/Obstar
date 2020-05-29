@@ -111,7 +111,6 @@ app.get('*', function(request, respond){
         leader: LEADERBOARD,
         shop: SHOP
       };
-      console.log(SHOP);
       respond.render('index.ejs', {data:JSON.stringify(sendData)});
     }
 });
